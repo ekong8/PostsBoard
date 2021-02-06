@@ -1,15 +1,21 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using PostsBoard.Models;
+using System;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace PostsBoard.Data
 {
     public class PostDbContext : DbContext
     {
         public IConfiguration Configuration { get; set; }
-        public PostDbContext(IConfiguration configuration)
+        public IWebHostEnvironment HostEnvironment { get; set; }
+
+        public PostDbContext(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
+            HostEnvironment = environment;
         }
 
         public DbSet<User> Users { get; set; }
@@ -22,10 +28,18 @@ namespace PostsBoard.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-           options.UseMySQL
-           (
-                 Configuration.GetConnectionString("MainDB")
-           ).UseLazyLoadingProxies();
+            string connectionString;
+            if (HostEnvironment.IsDevelopment())
+            {
+                connectionString = Configuration.GetConnectionString("MainDB");
+            }
+            else
+            {
+                connectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING");
+            }
+
+           options.UseMySQL(connectionString)
+                    .UseLazyLoadingProxies();
         }
         
         protected override void OnModelCreating(ModelBuilder builder)

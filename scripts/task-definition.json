@@ -25,6 +25,10 @@
                 {
                     "name": "LETSENCRYPT_EMAIL",
                     "value": "${LETSENCRYPT_EMAIL}"
+                },
+                {
+                    "name": "SQL_CONNECTION_STRING",
+                    "value": "${SQL_CONNECTION_STRING}"
                 }
             ]
         }
