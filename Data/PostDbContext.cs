@@ -38,7 +38,11 @@ namespace PostsBoard.Data
             }
             else
             {
-                connectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING");
+                var dbHost = Environment.GetEnvironmentVariable("SQL_HOST");
+                var dbSchema = Environment.GetEnvironmentVariable("SQL_SCHEMA");
+                var dbUser = Environment.GetEnvironmentVariable("SQL_USERNAME");
+                var dbPassword = Environment.GetEnvironmentVariable("SQL_PASSWORD");
+                connectionString = $"server={dbHost};database={dbSchema};user={dbUser};password={dbPassword}";
             }
 
             Logger.LogInformation("SQL CONNECTION STRING:: {CONN}", connectionString);

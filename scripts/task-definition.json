@@ -28,8 +28,20 @@
                     "value": "${LETSENCRYPT_EMAIL}"
                 },
                 {
-                    "name": "SQL_CONNECTION_STRING",
-                    "value": "\"${SQL_CONNECTION_STRING}\""
+                    "name": "SQL_HOST",
+                    "value": "${SQL_HOST}"
+                },
+                {
+                    "name": "SQL_SCHEMA",
+                    "value": "${SQL_SCHEMA}"
+                },
+                {
+                    "name": "SQL_USERNAME",
+                    "value": "${SQL_USERNAME}"
+                },
+                {
+                    "name": "SQL_PASSWORD",
+                    "value": "${SQL_PASSWORD}"
                 }
             ]
         }
