@@ -1,0 +1,69 @@
+﻿@model EditPostViewModel
+
+<div class="row">
+
+    <div class="col-lg-8">
+        <form id="Edit-post" action="/Post/EditPost">
+            <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+            <div class="form-group">
+                <label for="title" class="col-form-label text-secondary">Title</label>
+                <input name="title" class="form-control" type="text" value="@Model.Post.Title" />
+            </div>
+            <div class="form-group">
+                <label for="category" class="col-form-label text-secondary">Category</label>
+                <select name="CategoryID" class="custom-select">
+                    <option value="-1">--Select--</option>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category.CategoryID">
+                            @category.CategoryName
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="content" class="col-form-label text-secondary">Content</label>
+                <textarea class="form-control editor" rows="20" name="content">@Model.Post.Content</textarea>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" class="btn btn-success" value="Save">
+                <a class="btn btn-secondary" asp-controller="Post" asp-action="DetailPost" asp-route-id="@Model.Post.PostID">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        $(function () {
+            $("select[name=CategoryID] option[value=@Model.Post.CategoryID]")
+                .prop("selected", true)
+                .change();
+
+            $("#Edit-post").on("submit", function (e) {
+                e.preventDefault();
+
+                var categoryID = $("select[name=CategoryID]", this).val();
+                if (categoryID == "-1") {
+                    alert("Please select category")
+                    return;
+                }
+
+                $.ajax(`/api/posts/${@Model.Post.PostID}`, {
+                    method: "PUT",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        title: $("input[name=title]", this).val(),
+                        content: $("textarea[name=content]", this).val(),
+                        categoryID: parseInt(categoryID)
+                    })
+                }).done(function () {
+                    window.location.href = "/Post/@Model.Post.PostID"
+                })
+            })
+        });
+    </script>
+
+}

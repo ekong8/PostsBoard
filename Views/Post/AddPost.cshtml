@@ -1,0 +1,64 @@
+﻿@model IEnumerable<PostsBoard.Models.PostCategory>
+
+<div class="row">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-8">
+        <form id="add-post" method="post" action="/Post/AddPost">
+            <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+            <div class="form-group">
+                <label for="title" class="col-form-label text-secondary">Title</label>
+                <input name="title" class="form-control" type="text" />
+            </div>
+            <div class="form-group">
+                <label for="category" class="col-form-label text-secondary">Category</label>
+                <select name="CategoryID" class="custom-select">
+                    <option value="-1">--Select--</option>
+                    @foreach (var category in Model)
+                    {
+                        <option value="@category.CategoryID">
+                            @category.CategoryName
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="content" class="col-form-label text-secondary">Content</label>
+                <textarea class="form-control editor" rows="20" name="content"></textarea>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" class="btn btn-success" value="Save">
+                <a class="btn btn-secondary" asp-controller="Post" asp-action="Index">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $("#add-post").on("submit", function (e) {
+                e.preventDefault();
+
+                var categoryID = $("select[name=CategoryID]", this).val();
+                if (categoryID == "-1") {
+                    alert("Please select category")
+                    return;
+                }
+
+                $.ajax("/api/posts/add", {
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        title: $("input[name=title]", this).val(),
+                        content: $("textarea[name=content]", this).val(),
+                        categoryID: parseInt(categoryID)
+                    })
+                }).done(function () {
+                    window.location.href = "/Post/Index"
+                })
+            })
+        });
+    </script>
+
+}

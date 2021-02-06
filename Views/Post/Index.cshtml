@@ -1,0 +1,201 @@
+﻿<div class="row">
+    <div class="col-10 offset-1 pt-2 pl-4">
+        <div class="h2 text-secondary"><i class="bi bi-list-ul mr-3"></i>Post Board</div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-10 offset-1 pt-3">
+        <div class="table-responsive">
+            <!--List of subject-->
+            <table id="posts-table" class="table table-striped table-sm">
+                <thead class="text-center">
+                    <tr>
+                        <th>#</th>
+                        <th>Category</th>
+                        <th>Title</th>
+                        <th>Writer</th>
+                        <th><i class="bi bi-eye-fill"></i></th>
+                        <th><i class="bi bi-heart-fill"></i></th>
+                        <th><i class="bi bi-clock-fill"></i></th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-10 offset-1 pb-3">
+        <!--Set up for loading-->
+        <div id="post-list-loading">
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border text-success" role="status" id="post-list-loading-icon">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+
+            <div id="post-list-loading-text" class="text-center font-weight-bold">
+                <p>Loading...</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-10 offset-1 border-top border-light pt-3">
+        <div class="d-flex justify-content-between">
+            <form name="filter-posts px-3 py-2">
+                <div class="form-row">
+                    <div class="col-4">
+                        <select name="filter-criteria" class="form-control">
+                            <option value="title">Title</option>
+                            <option value="category">Category</option>
+                            <option value="writer">Writer</option>
+                        </select>
+                    </div>
+                    <div class="col-8 pl-1">
+                        <input class="form-control" type="search" name="filter">
+                    </div>
+                </div>
+            </form>
+
+            <div>
+                <!--button for Add-->
+                <a class="btn btn-success" asp-controller="Post" asp-action="AddPost">
+                    <i class="bi bi-pencil-square mr-2"></i>
+                    <span>Add Post</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Loading code of modal-->
+<div id="loading-modal" class="modal" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="spinner-border text-success mx-auto" role="status" style="width: 6rem; height: 6rem; display:flex">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <div class="mx-auto h6 mt-2 text-secondary text-center">Please wait</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Preview modal-->
+<div id="preview-modal" class="modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="preview-title" class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="preview-content"></p>
+            </div>
+            <div class="modal-footer">
+                <a id="see-details-btn" class="btn btn-primary">See Details</a>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Jqury and ajax-->
+@section Scripts {
+    <script>
+        $(function () {
+            $("input[name=filter]").on("change keypress paste focus textInput input", function () {
+                const criteria = $("select[name=filter-criteria]").val();
+                let filter = $(this).val();
+
+                if (!filter || filter.trim().length == 0) {
+                    $("#posts-table tbody tr").show();
+
+                    return this;
+                }
+
+                filter = filter.toLowerCase();
+
+                function filterPosts() {
+                    return `${$(this).data(`post-${criteria}`)}`
+                        .toLowerCase()
+                        ?.includes(filter);
+                }
+
+                $("#posts-table tbody tr")
+                    .filter(filterPosts)
+                    .show();
+
+                $("#posts-table tbody tr")
+                    .not(filterPosts)
+                    .hide();
+            });
+
+            $("form[name=search-posts] :input")
+                .prop("disabled", true);
+
+            $.ajax("/api/posts")
+                .done(function (data, status, jqXHR) {
+                    var posts = jqXHR.responseJSON;
+
+                    $("#post-list-loading").hide();
+
+                    posts.forEach(post => {
+                        $("#posts-table tbody").append(
+
+                            $(`
+                                        <tr data-post-id="${post.postID}"
+                                            data-post-category="${post.category?.categoryName}"
+                                            data-post-title="${post.title}"
+                                            data-post-writer="${post.user.fullName}">
+                                            <td>${post.postID}</td>
+                                            <td>${post.category?.categoryName || "--"}</td>
+                                            <td><a href="/Post/${post.postID}">${post.title}</a></td>
+                                            <td>${post.user.fullName}</td>
+                                            <td>${post.views}</td>
+                                            <td>${post.likes}</td>
+                                            <td>${new Date(post.postedDate).toLocaleDateString()}</td>
+                                            <td><button class="preview-btn btn btn-success btn-sm">Preview</button></td>
+                                        </tr>`
+                            )
+                        );
+
+                        $("form[name=search-posts] :input")
+                            .prop("disabled", false);
+                    });
+
+                    $(".preview-btn").on("click", function () {
+                        $("#loading-modal").modal("show");
+
+                        const currentRow = $(this).closest("tr");
+                        const postId = currentRow.data("post-id");
+
+                        $.ajax(`/api/posts/${postId}`)
+                            .done(function (data, status, jqXHR) {
+                                const currentPost = jqXHR.responseJSON;
+
+                                const previewModal = $("#preview-modal");
+                                $("#preview-title", previewModal).text(
+                                    currentPost.title
+                                );
+                                $("#preview-content", previewModal).text(
+                                    currentPost.content
+                                );
+                                $("#see-details-btn", previewModal).attr(
+                                    "href",
+                                    `/Post/${postId}`
+                                );
+
+                                $("#loading-modal").modal("hide");
+                                previewModal.modal("show");
+                            });
+                    });
+                });
+        });
+    </script>
+}

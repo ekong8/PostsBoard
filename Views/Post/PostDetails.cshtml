@@ -1,0 +1,276 @@
+﻿@model Post
+
+@using PostsBoard.Data
+@using Microsoft.AspNetCore.Http
+@inject PostDbContext Context
+
+@{
+    var userId = Html.ViewContext.HttpContext.Session.GetInt32("USER_LOGIN_KEY");
+    var currentUser = Context.Users.SingleOrDefault(u => u.UserID == userId);
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h3 class="page-header">Details</h3>
+    </div>
+</div>
+
+
+<div class="row post">
+    <div class="col-10 offset-1 pt-3">
+        <form>
+            <div class="form-group">
+                <label for="title" class="col-form-label text-secondary">Title</label>
+                <input name="title" class="form-control" type="text" value="@Model.Title" readonly="readonly" />
+            </div>
+            <div class="form-group">
+                <label for="category" class="col-form-label text-secondary">Category</label>
+                <input name="category" class="form-control" type="text" value="@Model.Category.CategoryName" readonly="readonly" />
+
+            </div>
+            <div class="form-group">
+                <label for="content" class="col-form-label text-secondary">Content</label>
+                <textarea name="content" class="form-control" readonly="readonly">@Model.Content</textarea>
+            </div>
+
+            <div class="d-flex justify-content-between px-3">
+                <div id="post-btn-block">
+                    <a class="btn btn-success mx-1" asp-controller="Post" asp-action="Index">List</a>
+                    <a class="btn btn-success mx-1" asp-controller="Post" asp-action="EditPost" asp-route-id="@Model.PostID">Edit</a>
+                    <a class="btn btn-danger text-light mx-1" id="delete-post">Delete</a>
+                </div>
+                <div id="post-actions" class="d-flex align-content-end">
+                    <div class="d-inline-block text-secondary">
+                        <i class="bi bi-eye-fill h5 pb-1"></i>
+                        <span class="small font-weight-bold"><sub class="view-count">@Model.Views</sub></span>
+                    </div>
+                    <div class="like-btn d-inline-block text-secondary cursor-pointer ml-3" style="border: none;">
+                        <i class="bi bi-heart-fill"></i>
+                        <span class="small font-weight-bold"><sub class="like-count">@Model.Likes</sub></span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<hr />
+
+<div class="row">
+    <div class="col-10 offset-1 pt-3">
+        <div id="comment-section-wrapper">
+            <div class="d-flex justify-content-between">
+                <div id="comment-section-header" class="h3 pl-3 text-secondary">
+                    Comments (@Model.Comments.Count)
+                </div>
+                <div class="d-flex justify-content-end pr-3">
+                    <!--Refresh button-->
+                    <div id="comment-refresh-btn" class="btn btn-success font-weight-bold">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-3">
+                <div class="comment-loading">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-success" role="status" style="border-width :6px; width: 10rem; height: 10rem;">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="h6 mt-2 text-secondary text-center">Please wait</div>
+                </div>
+                <div id="comment-section">
+                    <partial name="_CommentList" model="Model.Comments" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="col-10 offset-1 py-3">
+        <form name="add-comment" class="container border">
+            <div class="row p-3">
+                <div class="writer-profile col-3 h6 border-right pl-1 pt-2">
+                    <div class="row">
+                        <div class="col d-flex justify-content-center pt-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="75" height="75" fill="currentColor" class="bi bi-person-bounding-box" viewBox="0 0 16 16">
+                                <path d="M1.5 1a.5.5 0 0 0-.5.5v3a.5.5 0 0 1-1 0v-3A1.5 1.5 0 0 1 1.5 0h3a.5.5 0 0 1 0 1h-3zM11 .5a.5.5 0 0 1 .5-.5h3A1.5 1.5 0 0 1 16 1.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 1-.5-.5zM.5 11a.5.5 0 0 1 .5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 1 0 1h-3A1.5 1.5 0 0 1 0 14.5v-3a.5.5 0 0 1 .5-.5zm15 0a.5.5 0 0 1 .5.5v3a1.5 1.5 0 0 1-1.5 1.5h-3a.5.5 0 0 1 0-1h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 1 .5-.5z" />
+                                <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col text-center text-truncate text-capitalize px-3 pt-3">
+                            @currentUser.FullName
+                        </div>
+                    </div>
+                </div>
+                <div class="comment-content col-9 pl-4 pr-2 small">
+                    <textarea name="content" class="form-control small" rows="6" placeholder="Enter text here"></textarea>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end pt-1 pb-3 pr-3">
+                <input id="save-btn" type="submit" class="btn btn-sm btn-outline-primary font-weight-bold" value="Save">
+                <input id="clear-btn" type="reset" class="btn btn-sm btn-outline-secondary font-weight-bold ml-2" value="Clear">
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        function bindEventListeners() {
+            $(".comment-edit-content,.edited-btn-block").hide();
+
+            $(".like-btn").on("click", function () {
+                $(this).addClass("text-danger");
+            });
+
+            $(".comment .like-btn").on("click", function () {
+                const likeBtn = $(this);
+                const commentId = $(this).closest(".comment").data("comment-id");
+                $.ajax(`/api/posts/comment/like?commentId=${commentId}`, {
+                    method: "POST"
+                }).done(function (data, status, jqXHR) {
+                    var comment = jqXHR.responseJSON;
+
+                    likeBtn.find(".like-count").text(comment.likes);
+                });
+            });
+
+            //edit comment
+            $(".comment .edit-btn").on("click", function () {
+                const commentSection = $(this).closest(".comment");
+
+                commentSection
+                    .find(".comment-content")
+                    .hide();
+                commentSection
+                    .find(".comment-edit-content")
+                    .show();
+
+                commentSection
+                    .find(".idle-btn-block")
+                    .hide();
+                commentSection
+                    .find(".edited-btn-block")
+                    .show();
+            });
+
+            $(".comment .delete-btn").on("click", function () {
+                const commentSection = $(this).closest(".comment");
+                const commentId = commentSection.data("comment-id");
+
+                $.ajax(`/api/posts/comment/${commentId}`, {
+                    method: "DELETE"
+                }).done(function () {
+                    $("#comment-refresh-btn").trigger("click");
+                });
+            })
+
+            $(".comment .save-btn").on("click", function () {
+                const commentSection = $(this).closest(".comment");
+                const commentId = commentSection.data("comment-id");
+
+                const contentSection = commentSection.find("textarea[name=content]");
+                contentSection.prop("disabled", true);
+
+                $.ajax(`/api/posts/comment/${commentId}`, {
+                    method: "PUT",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        content: contentSection.val()
+                    })
+                }).done(function (data, status, jqXHR) {
+                    $("#comment-refresh-btn").trigger("click");
+                });
+            });
+
+            $(".comment .cancel-btn").on("click", function () {
+                const commentSection = $(this).closest(".comment");
+
+                const commentContent = commentSection.find(".comment-content");
+                commentContent.show();
+
+                const editBox = commentSection.find("textarea[name=content]");
+                editBox
+                    .val(commentContent.text());
+
+                commentSection
+                    .find(".comment-edit-content")
+                    .hide();
+
+                commentSection
+                    .find(".idle-btn-block")
+                    .show();
+                commentSection
+                    .find(".edited-btn-block")
+                    .hide();
+            });
+        }
+
+        $(function () {
+            $(".comment-loading").hide();
+
+            //create comment
+            $("form[name=add-comment]").on("submit", function (e) {
+                e.preventDefault();
+
+                const form = $(this);
+                $(":input", form).prop("disabled", true);
+
+                $.ajax("/api/posts/addcomment?postId=@Model.PostID", {
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        content: $("textarea[name=content]", this).val()
+                    })
+                }).done(function () {
+                    $("textarea[name=content]", form).val("");
+                    $(":input", form).prop("disabled", false);
+                    $("#comment-refresh-btn").trigger("click");
+                })
+            });
+
+            //Delete for Post
+            $("#delete-post").on("click", function () {
+                $.ajax(`/api/posts/${@Model.PostID}`, {
+                    method: "DELETE",
+                })
+                    .done(function () {
+                        window.location.href = "/Post/Index"
+                    })
+            });
+
+            $(".post .like-btn").on("click", function () {
+                const likeBtn = $(this);
+                $.ajax("/api/posts/like?postId=@Model.PostID", {
+                    method: "POST"
+                }).done(function (data, status, jqXHR) {
+                    var post = jqXHR.responseJSON;
+
+                    likeBtn.find(".like-count").text(post.likes);
+                });
+            });
+
+            $("#comment-refresh-btn").on("click", function () {
+                $(".comment-list").hide();
+                $(".comment-loading").show();
+
+                $.ajax("/Post/CommentListPartial?postId=@Model.PostID")
+                    .done(function (data, status, jqXHR) {
+                        $("#comment-section").html(
+                            jqXHR.responseText
+                        );
+                        $("#comment-section-header").text(
+                            `Comments (${$(".comment").length})`
+                        );
+
+                        bindEventListeners();
+                        $(".comment-loading").hide();
+                    })
+            });
+
+            bindEventListeners();
+        });
+    </script>
+}

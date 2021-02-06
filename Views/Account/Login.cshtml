@@ -1,0 +1,26 @@
+﻿@model PostsBoard.ViewModel.LoginViewModel
+
+<h2 class="text text-center text-secondary">Login</h2>
+
+    <div class="col-4 m-auto">
+        <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+        <form class="form-horizontal" method="post" asp-controller="Account" asp-action="Login">
+            <div class="form-group">
+                <label for="username" class="col-form-label text-secondary">User ID</label>
+                <input name="username" type="email" placeholder="example@gmail.com" class="form-control" />
+                <span class="text-danger" asp-validation-for="UserName"></span>
+            </div>
+            <div class="form-group">
+                <label for="password" class="col-form-label text-secondary">Password</label>
+                <input name="password" type="password" class="form-control" />
+                <span class="text-danger" asp-validation-for="Password"></span>
+            </div>
+        
+            <div class="form-group">
+                <button type="submit" class="btn btn-success">Login</button>
+                <button type="button" class="btn btn-secondary" href="/Home/Index">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+

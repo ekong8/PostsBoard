@@ -1,0 +1,66 @@
+﻿@model IEnumerable<PostComment>
+
+<div class="comment-list">
+    @foreach (var comment in Model)
+    {
+        <div class="comment pb-4" data-comment-id="@comment.CommentID">
+            <div class="container border">
+                <div class="row p-3">
+                    <div class="writer-profile col-3 h6 border-right pl-1 pt-2">
+                        <div class="row">
+                            <div class="col d-flex justify-content-center pb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="75" height="75" fill="currentColor" class="bi bi-person-bounding-box" viewBox="0 0 16 16">
+                                    <path d="M1.5 1a.5.5 0 0 0-.5.5v3a.5.5 0 0 1-1 0v-3A1.5 1.5 0 0 1 1.5 0h3a.5.5 0 0 1 0 1h-3zM11 .5a.5.5 0 0 1 .5-.5h3A1.5 1.5 0 0 1 16 1.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 1-.5-.5zM.5 11a.5.5 0 0 1 .5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 1 0 1h-3A1.5 1.5 0 0 1 0 14.5v-3a.5.5 0 0 1 .5-.5zm15 0a.5.5 0 0 1 .5.5v3a1.5 1.5 0 0 1-1.5 1.5h-3a.5.5 0 0 1 0-1h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 1 .5-.5z" />
+                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col text-center text-truncate text-capitalize px-3 pt-3">
+                                @comment.User.FullName
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col small pt-1 text-center">
+                                @comment.CommentedDate.ToLongDateString()
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col small pt-1 text-center">
+                                @comment.CommentedDate.ToShortTimeString()
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-9 px-4">
+                        <div class="comment-content small">@comment.Content</div>
+                        <div class="comment-edit-content pr-2 small">
+                            <textarea name="content" class="form-control small" rows="6">@comment.Content</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end pt-1 pb-3 pr-3">
+                    <div class="like-btn d-inline-block text-secondary cursor-pointer" style="border: none;">
+                        <i class="bi bi-heart-fill"></i>
+                        <span class="small font-weight-bold"><sub class="like-count">@comment.Likes</sub></span>
+                    </div>
+                    <div class="idle-btn-block">
+                        <div class="edit-btn btn btn-sm btn-outline-success font-weight-bold ml-2">
+                            Edit
+                        </div>
+                        <div class="delete-btn btn btn-sm btn-outline-secondary ml-1 font-weight-bold">
+                            Delete
+                        </div>
+                    </div>
+                    <div class="edited-btn-block">
+                        <div class="save-btn btn btn-sm btn-outline-primary font-weight-bold ml-2">
+                            Save
+                        </div>
+                        <div class="cancel-btn btn btn-sm btn-outline-secondary ml-1 font-weight-bold">
+                            Cancel
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
