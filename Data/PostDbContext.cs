@@ -4,6 +4,7 @@ using PostsBoard.Models;
 using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace PostsBoard.Data
 {
@@ -11,11 +12,13 @@ namespace PostsBoard.Data
     {
         public IConfiguration Configuration { get; set; }
         public IWebHostEnvironment HostEnvironment { get; set; }
+        public ILogger<PostDbContext> Logger { get; set; }
 
-        public PostDbContext(IConfiguration configuration, IWebHostEnvironment environment)
+        public PostDbContext(IConfiguration configuration, IWebHostEnvironment environment, ILogger<PostDbContext> logger)
         {
             Configuration = configuration;
             HostEnvironment = environment;
+            Logger = logger;
         }
 
         public DbSet<User> Users { get; set; }
@@ -37,6 +40,8 @@ namespace PostsBoard.Data
             {
                 connectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING");
             }
+
+            Logger.LogInformation("SQL CONNECTION STRING:: {CONN}", connectionString);
 
            options.UseMySQL(connectionString)
                     .UseLazyLoadingProxies();
