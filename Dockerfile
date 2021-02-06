@@ -1,5 +1,5 @@
 FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
-COPY src /app
+COPY . /app
 WORKDIR /app
 
 RUN dotnet restore
